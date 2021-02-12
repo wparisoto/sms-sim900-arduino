@@ -11,6 +11,7 @@ SoftwareSerial SIM900(7, 8);
 
 // Variable to store text message
 String textMessage;
+int qtdeMinutos;
 
 // Create a variable to store Lamp state
 String lampState = "HIGH";
@@ -50,51 +51,69 @@ void setup() {
 }
 
 void loop(){
-  if(SIM900.available()>0){
+  if(SIM900.available() > 0){
     textMessage = SIM900.readString();
-    Serial.println(textMessage);    
+    Serial.println(textMessage);      
     delay(10);
   } 
-  if(textMessage.indexOf("On")>=0){
-    // Turn on relay and save current state
+
+  if("" != textMessage){
+    qtdeMinutos = textMessage.toInt();
+    textMessage = "";
+    acionar();
+  }
+  
+//  if(textMessage.indexOf("On")>=0){
+//    // Turn on relay and save current state
+//    digitalWrite(relay, LOW);
+//    lampState = "on";
+//    Serial.println("Relay set to ON");  
+//    textMessage = "";   
+//  }
+//  if(textMessage.indexOf("Off")>=0){
+//    // Turn off relay and save current state
+//    digitalWrite(relay, HIGH);
+//    lampState = "off"; 
+//    Serial.println("Relay set to OFF");
+//    textMessage = ""; 
+//  }
+//  if(textMessage.indexOf("State")>=0){
+//    String message = "Lamp is " + lampState;
+//    sendSMS(message);
+//    Serial.println("Lamp state resquest");
+//    textMessage = "";
+//  }
+}  
+
+void acionar(){
     digitalWrite(relay, LOW);
     lampState = "on";
     Serial.println("Relay set to ON");  
-    textMessage = "";   
-  }
-  if(textMessage.indexOf("Off")>=0){
-    // Turn off relay and save current state
-    digitalWrite(relay, HIGH);
-    lampState = "off"; 
-    Serial.println("Relay set to OFF");
-    textMessage = ""; 
-  }
-  if(textMessage.indexOf("State")>=0){
-    String message = "Lamp is " + lampState;
-    sendSMS(message);
-    Serial.println("Lamp state resquest");
     textMessage = "";
-  }
-}  
 
-// Function that sends SMS
-void sendSMS(String message){
-  // AT command to set SIM900 to SMS mode
-  SIM900.print("AT+CMGF=1\r"); 
-  delay(100);
+    delay(qtdeMinutos * 1000);
 
-  // REPLACE THE X's WITH THE RECIPIENT'S MOBILE NUMBER
-  // USE INTERNATIONAL FORMAT CODE FOR MOBILE NUMBERS
-  SIM900.println("AT + CMGS = \"+5549991114619\""); 
-  delay(100);
-  // Send the SMS
-  SIM900.println(message); 
-  delay(100);
-
-  // End AT command with a ^Z, ASCII code 26
-  SIM900.println((char)26); 
-  delay(100);
-  SIM900.println();
-  // Give module time to send SMS
-  delay(5000);  
+    digitalWrite(relay, HIGH);
 }
+
+//// Function that sends SMS
+//void sendSMS(String message){
+//  // AT command to set SIM900 to SMS mode
+//  SIM900.print("AT+CMGF=1\r"); 
+//  delay(100);
+//
+//  // REPLACE THE X's WITH THE RECIPIENT'S MOBILE NUMBER
+//  // USE INTERNATIONAL FORMAT CODE FOR MOBILE NUMBERS
+//  SIM900.println("AT + CMGS = \"+5549991114619\""); 
+//  delay(100);
+//  // Send the SMS
+//  SIM900.println(message); 
+//  delay(100);
+//
+//  // End AT command with a ^Z, ASCII code 26
+//  SIM900.println((char)26); 
+//  delay(100);
+//  SIM900.println();
+//  // Give module time to send SMS
+//  delay(5000);  
+//}
